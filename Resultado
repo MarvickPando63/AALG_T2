@@ -1,0 +1,106 @@
+from copy import deepcopy
+import time
+
+# Laberinto 9x9
+# Autor: Marvick Jose Pando Tirado
+laberinto = [
+    ['F', 1, 1, 3, 0, 1, 1, 1, 4],
+    [3, 0, 0, 1, 0, 1, 0, 0, 1],
+    [1, 1, 0, 1, 1, 1, 1, 0, 1],
+    [0, 1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 3, 1, 1],
+    [3, 0, 1, 0, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 3, 1, 1, 1, 1],
+    [1, 0, 0, 1, 0, 1, 0, 0, 4],
+    ['I', 1, 3, 1, 0, 1, 1, 1, 1]
+]
+
+FILAS = 9
+COLUMNAS = 9
+
+movimientos = [
+    (-1, 0),  # arriba
+    (0, 1),   # derecha
+    (1, 0),   # abajo
+    (0, -1)   # izquierda
+]
+
+
+def mostrar_matriz(matriz):
+    for fila in matriz:
+        print(" ".join(f"{str(x):>2}" for x in fila))
+    print()
+
+
+def es_valido(fila, col, visitados):
+    return (0 <= fila < FILAS and
+            0 <= col < COLUMNAS and
+            laberinto[fila][col] != 0 and
+            not visitados[fila][col])
+
+
+def backtracking(fila, col, puntos, visitados, camino):
+
+    # Llegar a la salida
+    if laberinto[fila][col] == 'F':
+        if puntos >= 23:
+            camino.append((fila, col))
+            return True
+        return False
+
+    visitados[fila][col] = True
+    camino.append((fila, col))
+
+    for df, dc in movimientos:
+        nf = fila + df
+        nc = col + dc
+
+        if es_valido(nf, nc, visitados):
+
+            nuevos_puntos = puntos
+
+            if laberinto[nf][nc] == 3 or laberinto[nf][nc] == 4:
+                nuevos_puntos += laberinto[nf][nc]
+
+            if backtracking(nf, nc, nuevos_puntos,
+                            visitados, camino):
+                return True
+
+    # Retroceder si no encuentra una solución
+    camino.pop()
+    visitados[fila][col] = False
+    return False
+
+
+# Programa principal
+
+print("=== LABERINTO ORIGINAL ===\n")
+mostrar_matriz(laberinto)
+
+visitados = [[False] * COLUMNAS for _ in range(FILAS)]
+camino = []
+
+if backtracking(8, 0, 0, visitados, camino):
+
+    print("Se encontró un camino válido.")
+    print("Puntos obtenidos:", sum(
+        laberinto[f][c] for f, c in camino
+        if laberinto[f][c] == 3 or laberinto[f][c] == 4
+    ))
+
+    solucion = [fila.copy() for fila in laberinto]
+
+    for f, c in camino:
+        if solucion[f][c] not in ('I', 'F'):
+            solucion[f][c] = '*'
+
+    print("\n=== MATRIZ SOLUCION ===\n")
+    mostrar_matriz(solucion)
+
+    print("Recorrido encontrado:")
+    print(camino)
+
+else:
+    print("No se encontró un camino con 23 puntos o más.")
+    print("\n=== MATRIZ SIN SOLUCION ===\n")
+    mostrar_matriz(laberinto)
