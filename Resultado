@@ -1,7 +1,7 @@
 from copy import deepcopy
 import time
 
-# Autor: Marvick Jose Pando Tirado
+# Autor: Marvick Joseph Pando Tirado
 # Laberinto 9x9
 
 laberinto = [
